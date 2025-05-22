@@ -1,3 +1,12 @@
+use std::env;
+
+pub fn run() {
+    dotenvy::dotenv().unwrap();
+    let api_key = env::var("WEATHER_API_KEY").expect("WEATHER_API_KEY not found");
+
+    println!("WEATHER_API_KEY: {}", api_key);
+}
+
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
