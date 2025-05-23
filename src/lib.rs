@@ -3,6 +3,9 @@ use cli::{Args, CliAction};
 use std::env;
 
 mod cli;
+mod http;
+mod utils;
+mod weather;
 
 pub fn run() {
     dotenvy::dotenv().unwrap();
@@ -15,6 +18,7 @@ pub fn run() {
     match args.action {
         CliAction::GetWeatherData { city } => {
             println!("City is: {}", city);
+            cli::get_weather_data(&city);
         }
     }
 }
