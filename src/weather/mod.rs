@@ -5,12 +5,21 @@ use models::{WeatherData, WeatherDataResponse};
 
 mod models;
 
-pub fn get_weather_data(city_name: &str) -> Result<WeatherData, HTTPError> {
+#[derive(Debug, Default)]
+pub struct WeatherDataOptions {
+    pub lang: Option<String>,
+}
+
+pub fn get_weather_data(
+    city_name: &str,
+    options: WeatherDataOptions,
+) -> Result<WeatherData, HTTPError> {
     let api_key = env::var("WEATHER_API_KEY").expect("WEATHER_API_KEY not found");
+    let lang = options.lang.unwrap_or("en".to_string());
     let units = "metric";
     let url = format!(
-        "https://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={units}",
-        city_name, api_key
+        "https://api.openweathermap.org/data/2.5/weather?q={}&appid={}&lang={}&units={units}",
+        city_name, api_key, lang
     );
 
     let data = match reqwest::blocking::get(url) {

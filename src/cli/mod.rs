@@ -1,11 +1,14 @@
 pub use args::{Args, CliAction};
 
-use crate::{http::HTTPError, weather};
+use crate::{
+    http::HTTPError,
+    weather::{self, WeatherDataOptions},
+};
 
 mod args;
 
-pub fn get_weather_data(city_name: &str) {
-    let weather_data = weather::get_weather_data(&city_name);
+pub fn get_weather_data(city_name: &str, options: WeatherDataOptions) {
+    let weather_data = weather::get_weather_data(&city_name, options);
 
     match weather_data {
         Ok(data) => {
