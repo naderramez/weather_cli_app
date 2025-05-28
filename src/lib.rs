@@ -12,8 +12,11 @@ pub fn run() {
     let args = Args::parse();
 
     match args.action {
-        CliAction::Weather { city, lang } => {
-            let options = WeatherDataOptions { lang: Some(lang) };
+        CliAction::Weather { city, lang, units } => {
+            let options = WeatherDataOptions {
+                lang: Some(lang),
+                units: Some(units),
+            };
             cli::get_weather_data(&city, options);
         }
     }

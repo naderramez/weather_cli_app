@@ -8,6 +8,8 @@ use crate::{
 mod args;
 
 pub fn get_weather_data(city_name: &str, options: WeatherDataOptions) {
+    let units = options.units.clone().unwrap_or_default();
+    let units_symbol = units.get_symbol();
     let weather_data = weather::get_weather_data(&city_name, options);
 
     match weather_data {
@@ -16,7 +18,10 @@ pub fn get_weather_data(city_name: &str, options: WeatherDataOptions) {
             println!("Condition: {}\n", data.condition);
             println!("Description: {}\n", data.description);
             println!("Humidity: {}\n", data.humidity);
-            println!("Tempreature: {}\n", data.temp);
+            println!(
+                "Tempreature: {}\n",
+                format!("{} {}", data.temp, units_symbol)
+            );
         }
         Err(error) => match error {
             HTTPError::NotFound => {
