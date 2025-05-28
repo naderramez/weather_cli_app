@@ -1,5 +1,7 @@
 use clap::{Parser, Subcommand};
 
+use crate::weather::TempreatureUnit;
+
 #[derive(Debug, Clone, Subcommand)]
 pub enum CliAction {
     /// Get weather data
@@ -8,9 +10,12 @@ pub enum CliAction {
         /// Name of the city
         #[arg()]
         city: String,
-        /// Language
+        /// Language (en)
         #[arg(short, long, default_value_t = String::from("en"))]
         lang: String,
+        /// Units (metric or imperial)
+        #[arg(short, long, default_value_t = TempreatureUnit::Metric)]
+        units: TempreatureUnit,
     },
 }
 
