@@ -1,5 +1,6 @@
 use clap::Parser;
 use cli::{Args, CliAction};
+use weather::WeatherDataOptions;
 
 mod cli;
 mod http;
@@ -11,8 +12,9 @@ pub fn run() {
     let args = Args::parse();
 
     match args.action {
-        CliAction::GetWeatherData { city } => {
-            cli::get_weather_data(&city);
+        CliAction::Weather { city, lang } => {
+            let options = WeatherDataOptions { lang: Some(lang) };
+            cli::get_weather_data(&city, options);
         }
     }
 }

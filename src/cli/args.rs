@@ -4,10 +4,13 @@ use clap::{Parser, Subcommand};
 pub enum CliAction {
     /// Get weather data
     #[arg()]
-    GetWeatherData {
+    Weather {
         /// Name of the city
         #[arg()]
         city: String,
+        /// Language
+        #[arg(short, long, default_value_t = String::from("en"))]
+        lang: String,
     },
 }
 
