@@ -3,6 +3,7 @@ use cli::{Args, CliAction};
 use weather::WeatherDataOptions;
 
 mod cli;
+mod env;
 mod http;
 mod utils;
 mod weather;

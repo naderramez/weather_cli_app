@@ -1,7 +1,7 @@
 use clap::ValueEnum;
 use std::{env, fmt::Display, str::FromStr};
 
-use crate::{http::HTTPError, utils::serde_utils};
+use crate::{env::get_api_key, http::HTTPError, utils::serde_utils};
 use models::{WeatherData, WeatherDataResponse};
 
 mod models;
@@ -55,7 +55,7 @@ pub fn get_weather_data(
     city_name: &str,
     options: WeatherDataOptions,
 ) -> Result<WeatherData, HTTPError> {
-    let api_key = env::var("WEATHER_API_KEY").expect("WEATHER_API_KEY not found");
+    let api_key = get_api_key();
     let lang = options.lang.unwrap_or("en".to_string());
     let units = options.units.unwrap_or(TempreatureUnit::Metric);
     let url = format!(
