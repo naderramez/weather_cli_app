@@ -82,6 +82,7 @@ pub fn get_weather_data(
             description: data.weather[0].description.clone(),
             temp: data.main.temp,
             humidity: data.main.humidity,
+            icon: data.weather[0].icon.clone(),
         },
         WeatherDataResponse::Error(error) => {
             if error.cod == "404" {
@@ -93,4 +94,21 @@ pub fn get_weather_data(
     };
 
     Result::Ok(weather_data)
+}
+
+pub fn get_weather_emoji(icon_code: &str) -> &str {
+    match icon_code {
+        "01d" => "☀️",         // Clear sky (day)
+        "01n" => "🌙",         // Clear sky (night)
+        "02d" | "02n" => "⛅", // Few clouds
+        "03d" | "03n" => "☁️", // Scattered clouds
+        "04d" | "04n" => "🌥️", // Broken clouds
+        "09d" | "09n" => "🌧️", // Shower rain
+        "10d" => "🌦️",         // Rain (day)
+        "10n" => "🌧️",         // Rain (night)
+        "11d" | "11n" => "⛈️", // Thunderstorm
+        "13d" | "13n" => "❄️", // Snow
+        "50d" | "50n" => "🌫️", // Mist
+        _ => "❓",             // Unknown
+    }
 }

@@ -2,7 +2,7 @@ pub use args::{Args, CliAction};
 
 use crate::{
     http::HTTPError,
-    weather::{self, WeatherDataOptions},
+    weather::{self, WeatherDataOptions, get_weather_emoji},
 };
 
 mod args;
@@ -14,8 +14,9 @@ pub fn get_weather_data(city_name: &str, options: WeatherDataOptions) {
 
     match weather_data {
         Ok(data) => {
+            let weather_emoji = get_weather_emoji(&data.icon);
             println!("Weather data for: {}\n", city_name);
-            println!("Condition: {}\n", data.condition);
+            println!("Condition: {} {}\n", data.condition, weather_emoji);
             println!("Description: {}\n", data.description);
             println!("Humidity: {}\n", data.humidity);
             println!(
