@@ -2,6 +2,7 @@ use clap::Parser;
 use cli::{Args, CliAction};
 use weather::WeatherDataOptions;
 
+mod cache;
 mod cli;
 mod env;
 mod http;
