@@ -1,8 +1,13 @@
 use clap::ValueEnum;
-use std::{env, fmt::Display, str::FromStr};
+use std::{collections::HashMap, env, fmt::Display, str::FromStr};
 
-use crate::{env::get_api_key, http::HTTPError, utils::serde_utils};
-use models::{WeatherData, WeatherDataResponse};
+use crate::{
+    cache::{load_from_cache, save_to_cache},
+    env::get_api_key,
+    http::HTTPError,
+    utils::serde_utils::{self, serialize_data},
+};
+use models::{CachedWeatherData, WeatherData, WeatherDataResponse};
 
 mod models;
 
@@ -67,7 +72,18 @@ pub fn get_weather_data(
         Ok(data) => data,
         Err(error) => {
             println!("{}", error.to_string());
-            return Err(HTTPError::UnexpectedError);
+            let cached_data = load_from_cache().map_err(|_| HTTPError::UnexpectedError)?;
+            if cached_data.is_none() {
+                return Err(HTTPError::UnexpectedError);
+            }
+            let parsed_cached_data =
+                serde_utils::parse_value_from_json::<CachedWeatherData>(&cached_data.unwrap())
+                    .map_err(|_| HTTPError::UnexpectedError)?;
+            if let Some(weather_data) = parsed_cached_data.get(city_name) {
+                return Ok(weather_data.clone());
+            } else {
+                return Err(HTTPError::UnexpectedError);
+            }
         }
     };
 
@@ -77,14 +93,37 @@ pub fn get_weather_data(
     let response_data = serde_utils::parse_value_from_json::<WeatherDataResponse>(&text).unwrap();
 
     let weather_data = match response_data {
-        WeatherDataResponse::Success(data) => WeatherData {
-            condition: data.weather[0].main.clone(),
-            description: data.weather[0].description.clone(),
-            temp: data.main.temp,
-            humidity: data.main.humidity,
-            icon: data.weather[0].icon.clone(),
-        },
+        WeatherDataResponse::Success(data) => {
+            let weather_data = WeatherData {
+                condition: data.weather[0].main.clone(),
+                description: data.weather[0].description.clone(),
+                temp: data.main.temp,
+                humidity: data.main.humidity,
+                icon: data.weather[0].icon.clone(),
+            };
+            let cached_data = load_from_cache().map_err(|_| HTTPError::UnexpectedError)?;
+            let mut parsed_cached_data = {
+                if cached_data.is_none() {
+                    HashMap::new()
+                } else {
+                    let data = serde_utils::parse_value_from_json::<CachedWeatherData>(
+                        &cached_data.unwrap(),
+                    )
+                    .map_err(|_| HTTPError::UnexpectedError)?;
+                    data
+                }
+            };
+
+            parsed_cached_data.insert(city_name.to_string(), weather_data.clone());
+
+            let serialized_data =
+                serialize_data(&parsed_cached_data).map_err(|_| HTTPError::UnexpectedError)?;
+
+            save_to_cache(&serialized_data).map_err(|_| HTTPError::UnexpectedError)?;
+            weather_data
+        }
         WeatherDataResponse::Error(error) => {
+            println!("Error block");
             if error.cod == "404" {
                 return Err(HTTPError::NotFound);
             } else {
